@@ -3,8 +3,8 @@
 sudo chmod +x get_profile.sh <br>
 ./get_profile.sh
 ## Result
-- Test Version : Ubuntu 16.04 (4.4.0-x)
-- Target Kernels : Kernels that can be installed from the official Ubuntu repository.
+- OS Ver. : Ubuntu 16.04 Server (4.4.0-x) on VMware Workstation
+- Test Kernels : Kernels that can be installed from the official Ubuntu repository.
 Generate profiles to the "ubuntu" directory.
 
 | Profiled Version | Test Version | Manual Test | Automatic Test |
