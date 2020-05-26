@@ -7,9 +7,9 @@ sudo chmod +x get_profile.sh <br>
 - Target Kernels : Kernels that can be installed from the official Ubuntu repository.
 Generate profiles to the "ubuntu" directory.
 
-| ﻿Profiled Version | Test Version | Manual Test | Automation Test |
+| Profiled Version | Test Version | Manual Test | Automatic Test |
 |------------------|---------------|-------------|-----------------|
-| 4.4.0-21         | 4.4.0-21      | Yes         | Yes             |
+| 4.4.0-21       | 4.4.0-21      | Yes         | Yes             |
 | 4.4.0-22         | 4.4.0-22<br>4.4.0-24                                                                                                                        | Yes         | Yes             |
 | 4.4.0-28         | 4.4.0-28<br>4.4.0-31<br>4.4.0-34<br>4.4.0-36                                                                                                | Yes         | Yes             |
 | 4.4.0-38         | 4.4.0-38<br>4.4.0-42<br>4.4.0-43<br>4.4.0-45                                                                                                | Yes         | Yes             |
