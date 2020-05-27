@@ -94,7 +94,7 @@ while true; do
         break
       fi
     done
-    mv -f ubuntu-$(uname -r).zip $this_path/ubuntu/
+    mv -f ubuntu-$(uname -r).zip $this_path/profile-$kflag/
     cd $this_path
     echo $vflag > "$this_path/pflag.txt"
   else
