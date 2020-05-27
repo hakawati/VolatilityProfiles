@@ -47,7 +47,7 @@ for com in ${coms[@]}; do
   fi
 done
 
-declare -a dirs=( 'tools' 'ubuntu' )
+declare -a dirs=( 'tools' "profile-$kflag" )
 
 for dir in ${dirs[@]}; do
   if ! [[ -d "$this_path/$dir" ]]; then
