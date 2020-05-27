@@ -3,15 +3,15 @@
 kflag=$(uname -r | sed 's/-/ /g' | awk '{print $1}')
 kflag_profile=$(echo $kflag | sed 's/\./_/g')
 vflag=$(uname -r | sed 's/-/ /g' | awk '{print $2}')
-home=$(pwd)
+this_path=$(pwd)
 
 avml_url="https://github.com/microsoft/avml/releases/download/v0.2.0/avml"
 elfvol_url="http://downloads.volatilityfoundation.org/releases/2.6/volatility_2.6_lin64_standalone.zip"
 volsrc_url="https://github.com/volatilityfoundation/volatility.git"
 
-if ! [[ -f "$home/crond" ]]; then
-  echo "@reboot $home/`basename "$0"` | tee $home/runlog.txt" > $home/crond
-  crontab -u $USER $home/crond
+if ! [[ -f "$this_path/crond" ]]; then
+  echo "@reboot $this_path/`basename "$0"` | tee $this_path/runlog.txt" > $this_path/crond
+  crontab -u $USER $this_path/crond
 fi
 
 if [[ "$(id -u)" == "0" ]]; then
@@ -19,11 +19,11 @@ if [[ "$(id -u)" == "0" ]]; then
   exit 1
 fi
 
-if ! [[ -f "$home/password.txt" ]]; then
+if ! [[ -f "$this_path/password.txt" ]]; then
   read -sp "[sudo] password for $USER: " password
-  echo $password > "$home/password.txt"
+  echo $password > "$this_path/password.txt"
 else
-  password=$(cat "$home/password.txt")
+  password=$(cat "$this_path/password.txt")
 fi
 
 while true; do
@@ -50,39 +50,39 @@ done
 declare -a dirs=( 'tools' 'ubuntu' )
 
 for dir in ${dirs[@]}; do
-  if ! [[ -d "$home/$dir" ]]; then
-    mkdir -p "$home/$dir"
+  if ! [[ -d "$this_path/$dir" ]]; then
+    mkdir -p "$this_path/$dir"
   fi
 done
 
-if ! [[ -f "$home/avml" ]]; then
+if ! [[ -f "$this_path/avml" ]]; then
   wget "$avml_url"
-  echo $password | sudo -S chmod +x $home/avml
+  echo $password | sudo -S chmod +x $this_path/avml
 fi
 
-if ! [[ -f "$home/volatility" ]]; then
-  cd $home/tools
+if ! [[ -f "$this_path/volatility" ]]; then
+  cd $this_path/tools
   wget "$elfvol_url"
   unzip volatility_2.6_lin64_standalone.zip
-  mv volatility_2.6_lin64_standalone/volatility_2.6_lin64_standalone $home/volatility
-  cd $home
-  echo $password | sudo -S chmod +x $home/volatility
+  mv volatility_2.6_lin64_standalone/volatility_2.6_lin64_standalone $this_path/volatility
+  cd $this_path
+  echo $password | sudo -S chmod +x $this_path/volatility
 fi
 
-if ! [[ -d "$home/tools/volatility" ]]; then
-  cd $home/tools
+if ! [[ -d "$this_path/tools/volatility" ]]; then
+  cd $this_path/tools
   git clone "$volsrc_url"
-  cd $home
+  cd $this_path
 fi
 
-echo $password | sudo -S "$home/avml" "$home/$(uname -r).lime"
+echo $password | sudo -S "$this_path/avml" "$this_path/$(uname -r).lime"
 while true; do
-  if [[ -f "$home/pflag.txt" ]]; then
-    voltest=$($home/volatility --plugins=ubuntu --profile=Linuxubuntu-$kflag_profile-$(cat "$home/pflag.txt")-genericx64 -f $(uname -r).lime linux_pslist | tail -n 1 | awk '{print $NF}')
+  if [[ -f "$this_path/pflag.txt" ]]; then
+    voltest=$($this_path/volatility --plugins=ubuntu --profile=Linuxubuntu-$kflag_profile-$(cat "$this_path/pflag.txt")-genericx64 -f $(uname -r).lime linux_pslist | tail -n 1 | awk '{print $NF}')
     error_message=$(echo -e $voltest | grep 'No suitable address space mapping found')
   fi
   if [[ -z "$voltest" || "$voltest" == '-' || "$voltest" == '0' || -n "$error_message" ]]; then
-    cd "$home/tools/volatility/tools/linux"
+    cd "$this_path/tools/volatility/tools/linux"
     while true; do
       if [[ -f "ubuntu-$(uname -r).zip" ]]; then
         rm -f "ubuntu-$(uname -r).zip"
@@ -94,17 +94,17 @@ while true; do
         break
       fi
     done
-    mv -f ubuntu-$(uname -r).zip $home/ubuntu/
-    cd $home
-    echo $vflag > "$home/pflag.txt"
+    mv -f ubuntu-$(uname -r).zip $this_path/ubuntu/
+    cd $this_path
+    echo $vflag > "$this_path/pflag.txt"
   else
-    rm -f $home/$(uname -r).lime
+    rm -f $this_path/$(uname -r).lime
     break
   fi
 done
 
-version_file="$home/versions.txt"
-del_version_file="$home/del_versions.txt"
+version_file="$this_path/versions.txt"
+del_version_file="$this_path/del_versions.txt"
 if ! [[ -f "$version_file" ]]; then
   echo $password | sudo -S apt-cache search linux-headers-$kflag | grep 'generic' | sed 's/-/ /g' | awk '{print $4}' | sort -n > "$version_file"
 fi
@@ -119,15 +119,6 @@ if [[ ${#versions[@]} -ne 1 ]]; then
   ins_generic_image="linux-image-$kflag-${versions[1]}-generic"
   echo $password | sudo -S apt -y install "$ins_all_header" "$ins_generic_header" "$ins_generic_image"
 
-  if [[ ${#delkernel[@]} -ge 2 ]]; then
-    del_all_header="linux-headers-$kflag-${delkernel[1]}"
-    del_generic_header="linux-headers-$kflag-${delkernel[1]}-generic"
-    del_generic_image="linux-image-$kflag-${delkernel[1]}-generic"
-    echo $password | sudo -S apt -y autoremove "$del_all_header" "$del_generic_header" "$del_generic_image"
-    unset delkernel[1]
-    echo ${delkernel[@]} > "$del_version_file"
-  fi
-
   echo ${versions[0]} >> "$del_version_file" 
   unset versions[0]
   echo ${versions[@]} > "$version_file"
@@ -141,7 +132,7 @@ else
   done
 
   for delfile in ${delfiles[@]}; do
-    rm -rf $home/$delfile
+    rm -rf $this_path/$delfile
   done
   crontab -r -u $USER
 fi
