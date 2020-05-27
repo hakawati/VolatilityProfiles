@@ -47,7 +47,7 @@ for com in ${coms[@]}; do
   fi
 done
 
-declare -a dirs=( 'tools' "profile-$kflag" )
+declare -a dirs=( 'tools' 'ubuntu' )
 
 for dir in ${dirs[@]}; do
   if ! [[ -d "$this_path/$dir" ]]; then
@@ -87,14 +87,15 @@ while true; do
       if [[ -f "ubuntu-$(uname -r).zip" ]]; then
         rm -f "ubuntu-$(uname -r).zip"
       fi
-      make clean && make
+      make clean
+      make
       echo $password | sudo -S zip ubuntu-$(uname -r).zip module.dwarf /boot/System.map-$(uname -r)
       profile_test=$(wc -c module.dwarf | awk '{print $1}')
       if [[ "$profile_test" != '0' ]]; then
         break
       fi
     done
-    mv -f ubuntu-$(uname -r).zip $this_path/profile-$kflag/
+    mv -f ubuntu-$(uname -r).zip $this_path/ubuntu/
     cd $this_path
     echo $vflag > "$this_path/pflag.txt"
   else
